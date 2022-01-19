@@ -1,5 +1,5 @@
 import random
-import urllib.request
+import urllib.request, urllib.error
 import string
 
 # generate password between 8-15 chars, with 1 capital letter,
@@ -44,25 +44,29 @@ class PasswordGenerator:
             '/']
 
         self.generate_words()
-        self.word = self.select_word(num_words)
+        self.word_list = self.select_word(num_words)
         self.number = (random.randint(0, 100))
         self.special_char = random.choice(special_chars)
         self.password = self.generate_pwd(
-            self.word, self.number, self.special_char)
+            self.word_list, self.number, self.special_char)
 
     def __repr__(self):
         return self.password
 
     def generate_words(self):
-        with urllib.request.urlopen('https://www.gutenberg.org/files/2701/2701-0.txt') as response:
-            html = response.read().decode('utf-8')
-
-        full_word_list = set(html.split())
-        indexes = list(range(len(full_word_list)))
-        global full_word_dict
-        full_word_dict = dict(zip(indexes, full_word_list))
+        try:
+            with urllib.request.urlopen('https://www.powermobydick.com/Moby001.html') as response: #https://www.gutenberg.org/files/2701/2701-0.txt') as response:
+                html = response.read().decode('utf-8')
+    
+            full_word_list = set(html.split())
+            indexes = list(range(len(full_word_list)))
+            global full_word_dict
+            full_word_dict = dict(zip(indexes, full_word_list))
+        except Exception as e:
+            raise SystemExit(e, "Unable to connect with Project Gutenberg at this time, please try again later")
 
     def select_word(self, num_words):
+
         max_idx = len(full_word_dict) - 1
         words = []
 
@@ -85,19 +89,19 @@ class PasswordGenerator:
         return False
 
     def generate_pwd(self, word, number, special_char):
-        num_words_in_pwd = len(self.word)
+        num_words_in_pwd = len(self.word_list)
         word_to_modify = None
         remaining_word = None
 
         if num_words_in_pwd == 2:
             word_choice_idx = random.choice([0, 1])
-            word_to_modify = self.word[word_choice_idx]
+            word_to_modify = self.word_list[word_choice_idx]
             if word_choice_idx == 0:
-                remaining_word = self.word[1]
+                remaining_word = self.word_list[1]
             else:
-                remaining_word = self.word[0]
+                remaining_word = self.word_list[0]
         else:
-            word_to_modify = self.word[0]
+            word_to_modify = self.word_list[0]
 
         len_word = len(word_to_modify)
 
@@ -121,5 +125,6 @@ class PasswordGenerator:
         return "".join(pwd_list)
 
 
-for _ in range(5):
-    print(PasswordGenerator())
+#for _ in range(3):
+#    pwd = PasswordGenerator()
+#    print(pwd)
